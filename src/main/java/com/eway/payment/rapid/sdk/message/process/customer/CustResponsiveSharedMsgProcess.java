@@ -14,7 +14,7 @@ import com.eway.payment.rapid.sdk.message.convert.response.AccessCodeSharedToCre
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.util.Constant;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Create customer with responsive shared method
@@ -25,7 +25,7 @@ public class CustResponsiveSharedMsgProcess extends AbstractMakeRequestMessagePr
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public CustResponsiveSharedMsgProcess(WebResource resource, String... requestPath) {
+    public CustResponsiveSharedMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

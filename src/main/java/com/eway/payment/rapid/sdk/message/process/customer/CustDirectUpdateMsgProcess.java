@@ -14,7 +14,7 @@ import com.eway.payment.rapid.sdk.message.convert.CustomerToInternalCustomerConv
 import com.eway.payment.rapid.sdk.message.convert.response.DirectPaymentToCreateCustConverter;
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.util.Constant;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Update customer with direct payment method message process
@@ -25,7 +25,7 @@ public class CustDirectUpdateMsgProcess extends AbstractMakeRequestMessageProces
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public CustDirectUpdateMsgProcess(WebResource resource, String... requestPath) {
+    public CustDirectUpdateMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

@@ -10,7 +10,7 @@ import com.eway.payment.rapid.sdk.message.convert.response.DirectCustomerToQuery
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.output.QueryCustomerResponse;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Query customer message process
@@ -21,7 +21,7 @@ public class QueryCustomerMsgProcess extends AbstractMakeRequestMessageProcess<S
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public QueryCustomerMsgProcess(WebResource resource, String... requestPath) {
+    public QueryCustomerMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

@@ -13,7 +13,7 @@ import com.eway.payment.rapid.sdk.message.convert.response.AccessCodeToCreateCus
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.util.Constant;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Create customer with transparent redirect
@@ -24,7 +24,7 @@ public class CustTransparentRedirectMsgProcess extends AbstractMakeRequestMessag
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public CustTransparentRedirectMsgProcess(WebResource resource, String... requestPath) {
+    public CustTransparentRedirectMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

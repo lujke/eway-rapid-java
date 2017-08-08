@@ -1,22 +1,12 @@
 package com.eway.payment.rapid.sdk;
 
-import com.eway.payment.rapid.sdk.beans.external.Customer;
-import com.eway.payment.rapid.sdk.beans.external.PaymentMethod;
-import com.eway.payment.rapid.sdk.beans.external.Refund;
-import com.eway.payment.rapid.sdk.beans.external.Transaction;
-import com.eway.payment.rapid.sdk.beans.external.TransactionFilter;
+import com.eway.payment.rapid.sdk.beans.external.*;
 import com.eway.payment.rapid.sdk.entities.CreateCustomerResponse;
 import com.eway.payment.rapid.sdk.exception.APIKeyInvalidException;
 import com.eway.payment.rapid.sdk.exception.ParameterInvalidException;
 import com.eway.payment.rapid.sdk.exception.RapidSdkException;
 import com.eway.payment.rapid.sdk.message.process.MessageProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustDirectPaymentMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustDirectUpdateMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustResponsiveSharedMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustResponsiveUpdateMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustTransparentRedirectMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.CustTransparentUpdateMsgProcess;
-import com.eway.payment.rapid.sdk.message.process.customer.QueryCustomerMsgProcess;
+import com.eway.payment.rapid.sdk.message.process.customer.*;
 import com.eway.payment.rapid.sdk.message.process.refund.CancelAuthorisationMsgProcess;
 import com.eway.payment.rapid.sdk.message.process.refund.CapturePaymentMsgProcess;
 import com.eway.payment.rapid.sdk.message.process.refund.RefundMsgProcess;
@@ -24,26 +14,20 @@ import com.eway.payment.rapid.sdk.message.process.transaction.TransDirectPayment
 import com.eway.payment.rapid.sdk.message.process.transaction.TransQueryMsgProcess;
 import com.eway.payment.rapid.sdk.message.process.transaction.TransResponsiveSharedMsgProcess;
 import com.eway.payment.rapid.sdk.message.process.transaction.TransTransparentRedirectMsgProcess;
-import com.eway.payment.rapid.sdk.output.CreateTransactionResponse;
-import com.eway.payment.rapid.sdk.output.QueryCustomerResponse;
-import com.eway.payment.rapid.sdk.output.QueryTransactionResponse;
-import com.eway.payment.rapid.sdk.output.RefundResponse;
-import com.eway.payment.rapid.sdk.output.ResponseOutput;
+import com.eway.payment.rapid.sdk.output.*;
 import com.eway.payment.rapid.sdk.util.Constant;
 import com.eway.payment.rapid.sdk.util.RapidClientFilter;
 import com.eway.payment.rapid.sdk.util.ResourceUtil;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.client.filter.LoggingFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -51,7 +35,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import javax.net.ssl.SSLContext;
 
 public class RapidClientImpl implements RapidClient {
 
@@ -396,23 +379,26 @@ public class RapidClientImpl implements RapidClient {
      *
      * @return A WebResource
      */
-    private WebResource getEwayWebResource() {
-        ClientConfig clientConfig = new DefaultClientConfig();
-        clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        Client client = Client.create(clientConfig);
-        client.addFilter(new HTTPBasicAuthFilter(APIKey, password));
+    private WebTarget getEwayWebResource() {
+
+        final ClientBuilder builder = ClientBuilder.newBuilder();
+
+        HttpAuthenticationFeature authFeature = HttpAuthenticationFeature.basicBuilder().credentials(APIKey, password).build();
+        builder.register(authFeature);
 
         if (this.debug) {
-            client.addFilter(new LoggingFilter(System.out));
+            builder.register(new LoggingFeature());
         }
 
         // Set additional headers
         RapidClientFilter rapidFilter = new RapidClientFilter();
         rapidFilter.setVersion(apiVersion);
-        client.addFilter(rapidFilter);
+        builder.register(rapidFilter);
 
-        WebResource resource = client.resource(webUrl);
-        return resource;
+        Client client = builder.build();
+
+
+        return client.target(webUrl);
     }
 
     /**

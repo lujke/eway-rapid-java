@@ -12,7 +12,7 @@ import com.eway.payment.rapid.sdk.message.convert.response.DirectPaymentToCreate
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.output.CreateTransactionResponse;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Create transaction with direct payment message process
@@ -23,7 +23,7 @@ public class TransDirectPaymentMsgProcess extends AbstractMakeRequestMessageProc
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public TransDirectPaymentMsgProcess(WebResource resource, String... requestPath) {
+    public TransDirectPaymentMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

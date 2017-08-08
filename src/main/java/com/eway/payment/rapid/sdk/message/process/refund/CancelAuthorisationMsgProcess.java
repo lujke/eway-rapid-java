@@ -13,7 +13,7 @@ import com.eway.payment.rapid.sdk.message.convert.response.CancelAuthorisationTo
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.output.RefundResponse;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 public class CancelAuthorisationMsgProcess extends AbstractMakeRequestMessageProcess<Refund, RefundResponse> {
 
@@ -21,7 +21,7 @@ public class CancelAuthorisationMsgProcess extends AbstractMakeRequestMessagePro
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public CancelAuthorisationMsgProcess(WebResource resource, String... requestPath) {
+    public CancelAuthorisationMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

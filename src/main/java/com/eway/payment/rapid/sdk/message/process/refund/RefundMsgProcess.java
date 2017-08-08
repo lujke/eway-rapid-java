@@ -13,7 +13,7 @@ import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProc
 import com.eway.payment.rapid.sdk.output.RefundResponse;
 import com.eway.payment.rapid.sdk.util.Constant;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Refund message process
@@ -24,7 +24,7 @@ public class RefundMsgProcess extends AbstractMakeRequestMessageProcess<Refund, 
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public RefundMsgProcess(WebResource resource, String... requestPath) {
+    public RefundMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

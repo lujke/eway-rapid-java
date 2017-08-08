@@ -9,7 +9,7 @@ import com.eway.payment.rapid.sdk.message.process.AbstractMessageProcess;
 import com.eway.payment.rapid.sdk.output.QueryTransactionResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Query transaction message process
@@ -20,7 +20,7 @@ public class TransQueryMsgProcess extends AbstractMessageProcess<String, QueryTr
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public TransQueryMsgProcess(WebResource resource, String... requestPath) {
+    public TransQueryMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

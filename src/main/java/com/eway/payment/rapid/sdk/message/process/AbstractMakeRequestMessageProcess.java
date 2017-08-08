@@ -4,7 +4,7 @@ import com.eway.payment.rapid.sdk.entities.Request;
 import com.eway.payment.rapid.sdk.entities.Response;
 import com.eway.payment.rapid.sdk.exception.RapidSdkException;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Defines the work flow to send and receive web service messages. Before
@@ -19,7 +19,7 @@ public abstract class AbstractMakeRequestMessageProcess<T, V> extends AbstractMe
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public AbstractMakeRequestMessageProcess(WebResource resource, String... requestPath) {
+    public AbstractMakeRequestMessageProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

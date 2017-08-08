@@ -12,14 +12,14 @@ import com.eway.payment.rapid.sdk.message.convert.response.AccessCodeToCreateTra
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.output.CreateTransactionResponse;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Create transaction with transparent redirect method message process
  */
 public class TransTransparentRedirectMsgProcess extends AbstractMakeRequestMessageProcess<Transaction, CreateTransactionResponse> {
 
-    public TransTransparentRedirectMsgProcess(WebResource resource, String... requestPath) {
+    public TransTransparentRedirectMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 

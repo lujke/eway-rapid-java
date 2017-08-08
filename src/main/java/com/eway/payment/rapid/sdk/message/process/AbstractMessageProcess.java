@@ -6,10 +6,10 @@ import com.eway.payment.rapid.sdk.exception.CommunicationFailureException;
 import com.eway.payment.rapid.sdk.exception.RapidSdkException;
 import com.eway.payment.rapid.sdk.exception.SystemErrorException;
 
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,11 +21,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.ssl.SSLContext;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * The abstract class to defines message process work flows
@@ -35,7 +34,7 @@ import javax.ws.rs.core.MediaType;
  */
 public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, V> {
 
-    private WebResource webResource;
+    private WebTarget webResource;
     private T t;
     private final List<String> listRequestPath = new ArrayList<String>();
 
@@ -45,7 +44,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
      * @param resource The web resource to call Rapid API
      * @param requestPath Path of request URL. Used to make full web service URL
      */
-    public AbstractMessageProcess(WebResource resource, String... requestPath) {
+    public AbstractMessageProcess(WebTarget resource, String... requestPath) {
         this.webResource = resource;
         if (requestPath != null) {
             listRequestPath.addAll(Arrays.asList(requestPath));
@@ -73,7 +72,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
      */
     protected final <U, K> U doPost(K request, Class<U> responseClass) throws RapidSdkException {
         try {
-            WebResource resource = getWebResource();
+            WebTarget resource = getWebResource();
             for (String path : getRequestPath()) {
                 if (!StringUtils.isBlank(path)) {
                     resource = resource.path(path);
@@ -85,18 +84,20 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
             requestJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 
             SSLContext context = SSLContext.getInstance("TLSv1.2");
-            context.init(null,null,null);
+            context.init(null, null, null);
             SSLContext oldContext = SSLContext.getDefault();
             SSLContext.setDefault(context);
-
-            U response = resource.type(MediaType.APPLICATION_JSON_TYPE).accept(MediaType.APPLICATION_JSON_TYPE).post(responseClass, request);
+            
+            U response = resource.request().accept(MediaType.APPLICATION_JSON_TYPE).
+                    buildPost(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE)).invoke(responseClass);
 
             SSLContext.setDefault(oldContext);
 
             return response;
-        } catch (ClientHandlerException e) {
-            throw new CommunicationFailureException("Internal system error communicating with Rapid API", e);
-        } catch (UniformInterfaceException e) {
+        } catch (ProcessingException e) {
+            throw new CommunicationFailureException("Error communicating with Rapid API", e);
+        } catch (WebApplicationException e) {
+
             if (e.getResponse().getStatus() == Status.UNAUTHORIZED.getStatusCode()) {
                 throw new AuthenticationFailureException("Authentication failed on the endpoint", e);
             } else if (e.getResponse().getStatus() == Status.FORBIDDEN.getStatusCode()) {
@@ -106,6 +107,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
             } else {
                 throw new SystemErrorException(e.getMessage(), e);
             }
+
         } catch (IOException e) {
             throw new SystemErrorException(e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
@@ -127,7 +129,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
      */
     protected final <U, K> U doPut(K request, Class<U> responseClass) throws RapidSdkException {
         try {
-            WebResource resource = getWebResource();
+            WebTarget resource = getWebResource();
             for (String path : getRequestPath()) {
                 if (!StringUtils.isBlank(path)) {
                     resource = resource.path(path);
@@ -139,19 +141,20 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
             requestJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 
             SSLContext context = SSLContext.getInstance("TLSv1.2");
-            context.init(null,null,null);
+            context.init(null, null, null);
             SSLContext oldContext = SSLContext.getDefault();
             SSLContext.setDefault(context);
 
-            U response = resource.type(MediaType.APPLICATION_JSON_TYPE).accept(MediaType.APPLICATION_JSON_TYPE).put(responseClass, request);
+            U response = resource.request().accept(MediaType.APPLICATION_JSON_TYPE).
+                    buildPut(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE)).invoke(responseClass);
 
             SSLContext.setDefault(oldContext);
 
             return response;
+        } catch (ProcessingException e) {
+            throw new CommunicationFailureException("Error communicating with Rapid API", e);
+        } catch (WebApplicationException e) {
 
-        } catch (ClientHandlerException e) {
-            throw new CommunicationFailureException("Internal system error communicating with Rapid API", e);
-        } catch (UniformInterfaceException e) {
             if (e.getResponse().getStatus() == Status.UNAUTHORIZED.getStatusCode()) {
                 throw new AuthenticationFailureException("Authentication failed on the endpoint", e);
             } else if (e.getResponse().getStatus() == Status.FORBIDDEN.getStatusCode()) {
@@ -161,6 +164,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
             } else {
                 throw new SystemErrorException(e.getMessage(), e);
             }
+
         } catch (IOException e) {
             throw new SystemErrorException(e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
@@ -180,10 +184,10 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
      * @throws RapidSdkException base SDK exception
      */
     protected final <U> U doGet(String request, Class<U> responseClass) throws RapidSdkException {
-        WebResource resouce = getWebResource();
+        WebTarget resource = getWebResource();
         for (String p : getRequestPath()) {
             if (!StringUtils.isBlank(p)) {
-                resouce = resouce.path(p);
+                resource = resource.path(p);
             }
         }
         try {
@@ -193,14 +197,16 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
             SSLContext oldContext = SSLContext.getDefault();
             SSLContext.setDefault(context);
 
-            U response = resouce.path(request).get(responseClass);
+            U response = resource.path(request).request().accept(MediaType.APPLICATION_JSON_TYPE).
+                    get(responseClass);
 
             SSLContext.setDefault(oldContext);
 
             return response;
-        } catch (ClientHandlerException e) {
-            throw new CommunicationFailureException("Internal system error communicating with Rapid API", e);
-        } catch (UniformInterfaceException e) {
+        } catch (ProcessingException e) {
+            throw new CommunicationFailureException("Error communicating with Rapid API", e);
+        } catch (WebApplicationException e) {
+
             if (e.getResponse().getStatus() == Status.UNAUTHORIZED.getStatusCode()) {
                 throw new AuthenticationFailureException("Authentication failed on the endpoint", e);
             } else if (e.getResponse().getStatus() == Status.FORBIDDEN.getStatusCode()) {
@@ -274,7 +280,7 @@ public abstract class AbstractMessageProcess<T, V> implements MessageProcess<T, 
      *
      * @return Web resource
      */
-    protected final WebResource getWebResource() {
+    protected final WebTarget getWebResource() {
         return webResource;
     }
 

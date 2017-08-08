@@ -12,14 +12,14 @@ import com.eway.payment.rapid.sdk.message.convert.response.CapturePaymentToCreat
 import com.eway.payment.rapid.sdk.message.process.AbstractMakeRequestMessageProcess;
 import com.eway.payment.rapid.sdk.output.CreateTransactionResponse;
 
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * Capture payment message process
  */
 public class CapturePaymentMsgProcess extends AbstractMakeRequestMessageProcess<Transaction, CreateTransactionResponse> {
 
-    public CapturePaymentMsgProcess(WebResource resource, String... requestPath) {
+    public CapturePaymentMsgProcess(WebTarget resource, String... requestPath) {
         super(resource, requestPath);
     }
 
