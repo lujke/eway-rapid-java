@@ -44,6 +44,7 @@ public class CancelTransactionTest extends IntegrationTest {
 
     @Test
     public void testValidInput() {
+        t.setCapture(false);
         CreateTransactionResponse res = client.create(PaymentMethod.Direct, t);
         RefundDetails rd = new RefundDetails();
         rd.setOriginalTransactionID(String.valueOf(res.getTransactionStatus().getTransactionID()));
@@ -53,11 +54,23 @@ public class CancelTransactionTest extends IntegrationTest {
     }
 
     @Test
-    public void testInvalidInput1() {
+    public void testAgainstCapturedTransaction() {
+        CreateTransactionResponse res = client.create(PaymentMethod.Direct, t);
         RefundDetails rd = new RefundDetails();
-        rd.setOriginalTransactionID("1234");
+        rd.setOriginalTransactionID(String.valueOf(res.getTransactionStatus().getTransactionID()));
         refund.setRefundDetails(rd);
         RefundResponse cancelRes = client.cancel(refund);
+        Assert.assertFalse(cancelRes.getTransactionStatus().isStatus());
+        Assert.assertTrue(cancelRes.getErrors().contains("V6134"));
+    }
+
+    @Test
+    public void testInvalidInput1() {
+        RefundDetails rd = new RefundDetails();
+        rd.setOriginalTransactionID("thistransactionneverexisted");
+        refund.setRefundDetails(rd);
+        RefundResponse cancelRes = client.cancel(refund);
+        // I guess the sandbox coding is such that this just works!
         Assert.assertTrue(cancelRes.getErrors().contains("V6134"));
     }
 

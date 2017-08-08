@@ -37,10 +37,13 @@ public class AuthorizationTransactionTest extends IntegrationTest {
 
     @Test
     public void testValidInput() {
+        t.setCapture(false);
         CreateTransactionResponse res = client.create(PaymentMethod.Direct, t);
-        t.setAuthTransactionID(res.getTransactionStatus().getTransactionID());
-        CreateTransactionResponse authRes = client.create(PaymentMethod.Authorisation, t);
         Assert.assertTrue(res.getTransactionStatus().isStatus());
+        t.setAuthTransactionID(res.getTransactionStatus().getTransactionID());
+        t.setCapture(true);
+        CreateTransactionResponse authRes = client.create(PaymentMethod.Authorisation, t);
+        Assert.assertTrue(authRes.getTransactionStatus().isStatus());
         Assert.assertNotEquals(0, authRes.getTransactionStatus().getTransactionID());
     }
 
@@ -53,11 +56,14 @@ public class AuthorizationTransactionTest extends IntegrationTest {
 
     @Test
     public void testInvalidInput2() {
+        t.setCapture(false);
         CreateTransactionResponse res = client.create(PaymentMethod.Direct, t);
         t.setAuthTransactionID(res.getTransactionStatus().getTransactionID());
+        t.setCapture(true);
         CreateTransactionResponse authRes = client.create(PaymentMethod.Authorisation, t);
+        Assert.assertTrue(authRes.getTransactionStatus().isStatus());
         CreateTransactionResponse authRes2 = client.create(PaymentMethod.Authorisation, t);
-        Assert.assertTrue(!authRes2.getTransactionStatus().isStatus());
+        Assert.assertFalse(authRes2.getTransactionStatus().isStatus());
     }
 
     @After
