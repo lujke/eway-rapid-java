@@ -16,6 +16,7 @@ import com.eway.payment.rapid.sdk.message.process.transaction.TransResponsiveSha
 import com.eway.payment.rapid.sdk.message.process.transaction.TransTransparentRedirectMsgProcess;
 import com.eway.payment.rapid.sdk.output.*;
 import com.eway.payment.rapid.sdk.util.Constant;
+import com.eway.payment.rapid.sdk.util.EwayJacksonJsonFeature;
 import com.eway.payment.rapid.sdk.util.RapidClientFilter;
 import com.eway.payment.rapid.sdk.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -381,7 +382,10 @@ public class RapidClientImpl implements RapidClient {
      */
     private WebTarget getEwayWebResource() {
 
-        final ClientBuilder builder = ClientBuilder.newBuilder();
+        // bind jackson manually rather than relying on external configuration of Jackson which might also
+        // be too aggressive in that it might bind JAXB annotations too if the common jersey-media-jackson package
+        // is used
+        final ClientBuilder builder = ClientBuilder.newBuilder().register(EwayJacksonJsonFeature.class);
 
         HttpAuthenticationFeature authFeature = HttpAuthenticationFeature.basicBuilder().credentials(APIKey, password).build();
         builder.register(authFeature);
